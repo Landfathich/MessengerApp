@@ -1,11 +1,10 @@
-
 def test_chat(request):
     return render(request, 'chat/test_chat.html')
 
 
 from django.contrib.auth.decorators import login_required
 
-from .models import Conversation
+from .models import Conversation, Message
 
 
 def register(request):
@@ -67,18 +66,20 @@ from django.shortcuts import get_object_or_404
 def conversation_chat(request, conversation_id):
     conversation = get_object_or_404(Conversation, id=conversation_id)
 
-    # Проверяем что пользователь участник чата
     if request.user not in conversation.participants.all():
         return redirect('chat_dashboard')
 
-    # Получаем собеседника (для личного чата)
+    # ЗАГРУЖАЕМ ИСТОРИЮ СООБЩЕНИЙ
+    messages = Message.objects.filter(conversation=conversation).order_by('timestamp')
+
     other_participants = conversation.participants.exclude(id=request.user.id)
     other_user = other_participants.first() if not conversation.is_group else None
 
     return render(request, 'chat/conversation.html', {
         'conversation': conversation,
         'other_user': other_user,
-        'user': request.user
+        'user': request.user,
+        'messages': messages  # ← передаем сообщения в шаблон
     })
 
 

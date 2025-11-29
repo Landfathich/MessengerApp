@@ -7,8 +7,12 @@
 <h1>Chat with {% if other_user %}{{ other_user.username }}{% else %}Group{% endif %}</h1>
 
 <div style="border: 1px solid #ccc; height: 400px; overflow-y: scroll; padding: 10px;" id="chatMessages">
-    <!-- Сообщения будут здесь -->
-    <p><em>No messages yet. Start the conversation!</em></p>
+    <!-- ПОКАЗЫВАЕМ ИСТОРИЮ СООБЩЕНИЙ -->
+    {% for message in messages %}
+        <p><strong>{{ message.sender.username }}:</strong> {{ message.content }}</p>
+    {% empty %}
+        <p><em>No messages yet. Start the conversation!</em></p>
+    {% endfor %}
 </div>
 
 <div style="margin-top: 10px;">
@@ -19,25 +23,32 @@
 <div style="margin-top: 20px;">
     <a href="{% url 'chat_dashboard' %}">← Back to Dashboard</a>
 </div>
-
 <script>
-    // TODO: Подключить WebSocket для этого конкретного чата
-    // Пока просто заглушка
+    const conversationId = {{ conversation.id }};
+    const socket = new WebSocket('ws://' + window.location.host + '/ws/chat/' + conversationId + '/');
+
+    socket.onmessage = function (event) {
+        const data = JSON.parse(event.data);
+        addMessageToChat(data.message);
+    };
+
+    function addMessageToChat(messageText) {
+        const chatDiv = document.getElementById('chatMessages');
+        chatDiv.innerHTML += `<p>${messageText}</p>`;
+        chatDiv.scrollTop = chatDiv.scrollHeight;
+    }
+
     function sendMessage() {
         const messageInput = document.getElementById('messageInput');
         const message = messageInput.value;
         if (message) {
-            const chatDiv = document.getElementById('chatMessages');
-            chatDiv.innerHTML += `<p><strong>You:</strong> ${message}</p>`;
+            socket.send(JSON.stringify({
+                'message': message
+            }));
             messageInput.value = '';
-            chatDiv.scrollTop = chatDiv.scrollHeight;
-
-            // TODO: Отправлять сообщение через WebSocket
-            alert('WebSocket для личных чатов будет реализован позже');
         }
     }
 
-    // Отправка по Enter
     document.getElementById('messageInput').addEventListener('keypress', function (e) {
         if (e.key === 'Enter') {
             sendMessage();
