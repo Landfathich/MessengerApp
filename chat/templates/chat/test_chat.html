@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MessengerApp Test</title>
+</head>
+<body>
+<h1>Simple Chat Test</h1>
+
+<div id="chat" style="border: 1px solid #ccc; height: 300px; overflow-y: scroll; padding: 10px;"></div>
+
+<input type="text" id="messageInput" placeholder="Type your message..." style="width: 80%;">
+<button onclick="sendMessage()">Send</button>
+
+<script>
+    const chatDiv = document.getElementById('chat');
+    const messageInput = document.getElementById('messageInput');
+
+    // Подключаемся к WebSocket
+    const socket = new WebSocket('ws://' + window.location.host + '/ws/');
+
+    socket.onopen = function () {
+        addMessage('System', 'Connected to chat!');
+    };
+
+    // В функции socket.onmessage замените на:
+    socket.onmessage = function (event) {
+        const data = JSON.parse(event.data);
+        addMessage('Chat', data.message);  // Теперь будет показывать реальные сообщения
+    };
+
+    function sendMessage() {
+        const message = messageInput.value;
+        if (message) {
+            socket.send(JSON.stringify({message: message}));
+            addMessage('You', message);
+            messageInput.value = '';
+        }
+    }
+
+    function addMessage(sender, text) {
+        chatDiv.innerHTML += `<p><strong>${sender}:</strong> ${text}</p>`;
+        chatDiv.scrollTop = chatDiv.scrollHeight;
+    }
+
+    // Отправка по Enter
+    messageInput.addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+            sendMessage();
+        }
+    });
+</script>
+</body>
+</html>
