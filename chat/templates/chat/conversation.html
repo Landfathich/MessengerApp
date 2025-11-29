@@ -25,10 +25,11 @@
 
         <div style="border: 1px solid #ddd; border-radius: 8px; flex: 1; display: flex; flex-direction: column; margin-top: 10px    ">
             <!-- Сообщения -->
-            <div id="chatMessages" style="flex: 1; padding: 20px; overflow-y: auto; background: #fafafa;">
+            <div id="chatMessages" style="flex: 1; padding: 20px; overflow-y: auto;
+    background: rgba(255, 255, 255, 0.8);">
                 {% for message in messages %}
                     <div style="margin-bottom: 10px;">
-                        <strong>{{ message.sender.username }}:</strong> {{ message.content }}
+                        {{ message.sender.username }}: {{ message.content }}
                     </div>
                 {% empty %}
                     <div style="text-align: center; color: #666; margin-top: 50px;">

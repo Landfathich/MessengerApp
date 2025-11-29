@@ -30,7 +30,7 @@
             <form method="post" action="{% url 'add_friend' %}">
                 {% csrf_token %}
                 <input type="text" name="friend_code" placeholder="Код друга" required>
-                <button type="submit" class="chat-btn">Добавить</button>
+                <button type="submit" class="chat-btn" style="margin-top: 10px">Добавить</button>
             </form>
         </div>
 
