@@ -1,41 +1,70 @@
+{% load static %}
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
-    <title>Register - MessengerApp</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Регистрация - MessengerApp</title>
+    <link rel="stylesheet" href="{% static 'chat/css/base.css' %}">
+    <link rel="stylesheet" href="{% static 'chat/css/auth.css' %}">
 </head>
 <body>
-<h1>Create Account</h1>
+<div class="auth-container">
+    <div class="auth-box">
+        <h1 class="auth-title">Создать аккаунт</h1>
 
-<form method="post">
-    {% csrf_token %}
+        {% if form.errors %}
+            <div class="error-message">
+                Пожалуйста, исправьте ошибки ниже.
+            </div>
+        {% endif %}
 
-    <div>
-        <label>Username:</label>
-        {{ form.username }}
-        {{ form.username.errors }}
+        <form method="post" class="auth-form">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label>Имя пользователя:</label>
+                {{ form.username }}
+                {% if form.username.errors %}
+                    <div class="error-message">{{ form.username.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label>Email:</label>
+                {{ form.email }}
+                {% if form.email.errors %}
+                    <div class="error-message">{{ form.email.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label>Пароль:</label>
+                {{ form.password1 }}
+                {% if form.password1.errors %}
+                    <div class="error-message">{{ form.password1.errors }}</div>
+                {% endif %}
+                <div class="help-text">
+                    • Минимум 8 символов<br>
+                    • Не только цифры
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Подтвердите пароль:</label>
+                {{ form.password2 }}
+                {% if form.password2.errors %}
+                    <div class="error-message">{{ form.password2.errors }}</div>
+                {% endif %}
+            </div>
+
+            <button type="submit" class="submit-btn">Зарегистрироваться</button>
+        </form>
+
+        <div class="auth-links">
+            <a href="{% url 'login' %}">Уже есть аккаунт? Войти</a>
+        </div>
     </div>
-
-    <div>
-        <label>Email:</label>
-        {{ form.email }}
-        {{ form.email.errors }}
-    </div>
-
-    <div>
-        <label>Password:</label>
-        {{ form.password1 }}
-        {{ form.password1.errors }}
-    </div>
-
-    <div>
-        <label>Confirm Password:</label>
-        {{ form.password2 }}
-        {{ form.password2.errors }}
-    </div>
-
-    <button type="submit">Register</button>
-</form>
-
-<p><a href="{% url 'login' %}">Already have an account? Login</a></p>
+</div>
 </body>
 </html>

@@ -1,59 +1,88 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Chat with {% if other_user %}{{ other_user.username }}{% else %}Group{% endif %}</title>
-</head>
-<body>
-<h1>Chat with {% if other_user %}{{ other_user.username }}{% else %}Group{% endif %}</h1>
+{% extends 'base.html' %}
 
-<div style="border: 1px solid #ccc; height: 400px; overflow-y: scroll; padding: 10px;" id="chatMessages">
-    <!-- ПОКАЗЫВАЕМ ИСТОРИЮ СООБЩЕНИЙ -->
-    {% for message in messages %}
-        <p><strong>{{ message.sender.username }}:</strong> {{ message.content }}</p>
-    {% empty %}
-        <p><em>No messages yet. Start the conversation!</em></p>
-    {% endfor %}
-</div>
+{% block title %}Чат с {{ other_user.username }} - MessengerApp{% endblock %}
 
-<div style="margin-top: 10px;">
-    <input type="text" id="messageInput" placeholder="Type your message..." style="width: 70%; padding: 5px;">
-    <button onclick="sendMessage()" style="padding: 5px 10px;">Send</button>
-</div>
-
-<div style="margin-top: 20px;">
-    <a href="{% url 'chat_dashboard' %}">← Back to Dashboard</a>
-</div>
-<script>
-    const conversationId = {{ conversation.id }};
-    const socket = new WebSocket('ws://' + window.location.host + '/ws/chat/' + conversationId + '/');
-
-    socket.onmessage = function (event) {
-        const data = JSON.parse(event.data);
-        addMessageToChat(data.message);
-    };
-
-    function addMessageToChat(messageText) {
-        const chatDiv = document.getElementById('chatMessages');
-        chatDiv.innerHTML += `<p>${messageText}</p>`;
-        chatDiv.scrollTop = chatDiv.scrollHeight;
-    }
-
-    function sendMessage() {
-        const messageInput = document.getElementById('messageInput');
-        const message = messageInput.value;
-        if (message) {
-            socket.send(JSON.stringify({
-                'message': message
-            }));
-            messageInput.value = '';
+{% block extra_css %}
+    <style>
+        /* Подсвечиваем активного друга в списке */
+        .friend-item[data-user-id="{{ other_user.id }}"] {
+            background: #e3f2fd;
+            border-left: 3px solid #0084ff;
         }
-    }
+    </style>
+{% endblock %}
 
-    document.getElementById('messageInput').addEventListener('keypress', function (e) {
-        if (e.key === 'Enter') {
-            sendMessage();
+{% block content %}
+    <div style="height: 100%; display: flex; flex-direction: column;">
+        <!-- Кнопка назад -->
+        <div style="margin-bottom: 15px;">
+            <a href="{% url 'chat_dashboard' %}" style="color: #0084ff; text-decoration: none; font-size: 14px;">
+                ← Назад к списку друзей
+            </a>
+        </div>
+
+        <h2>💬 Чат с {{ other_user.username }}</h2>
+
+        <div style="border: 1px solid #ddd; border-radius: 8px; flex: 1; display: flex; flex-direction: column; margin-top: 10px    ">
+            <!-- Сообщения -->
+            <div id="chatMessages" style="flex: 1; padding: 20px; overflow-y: auto; background: #fafafa;">
+                {% for message in messages %}
+                    <div style="margin-bottom: 10px;">
+                        <strong>{{ message.sender.username }}:</strong> {{ message.content }}
+                    </div>
+                {% empty %}
+                    <div style="text-align: center; color: #666; margin-top: 50px;">
+                        Пока нет сообщений. Начните общение!
+                    </div>
+                {% endfor %}
+            </div>
+
+            <!-- Поле ввода -->
+            <div style="padding: 15px; border-top: 1px solid #ddd; background: white;">
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" id="messageInput" placeholder="Введите сообщение..."
+                           style="flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 20px;">
+                    <button onclick="sendMessage()"
+                            style="background: #0084ff; color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer;">
+                        Отправить
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        const conversationId = {{ conversation.id }};
+        const socket = new WebSocket('ws://' + window.location.host + '/ws/chat/' + conversationId + '/');
+
+        socket.onmessage = function (event) {
+            const data = JSON.parse(event.data);
+            addMessageToChat(data.message);
+        };
+
+        function addMessageToChat(messageText) {
+            const chatDiv = document.getElementById('chatMessages');
+            chatDiv.innerHTML += `<div style="margin-bottom: 10px;">${messageText}</div>`;
+            chatDiv.scrollTop = chatDiv.scrollHeight;
         }
-    });
-</script>
-</body>
-</html>
+
+        function sendMessage() {
+            const messageInput = document.getElementById('messageInput');
+            const message = messageInput.value.trim();
+            if (message) {
+                socket.send(JSON.stringify({
+                    'message': message
+                }));
+                messageInput.value = '';
+            }
+        }
+
+        document.getElementById('messageInput').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    </script>
+{% endblock %}

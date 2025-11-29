@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}MessengerApp{% endblock %}</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'chat/css/base.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+<!-- Хедер -->
+<div class="header">
+    <a href="{% url 'chat_dashboard' %}"
+       style="text-decoration: none; color: white; display: flex; align-items: center; gap: 8px;">
+        <span>🏠</span>
+        <h1 style="margin: 0;">MessengerApp</h1>
+    </a>
+    <div class="user-info">
+        <span>Привет, {{ user.username }}!</span>
+        <a href="{% url 'logout' %}" class="logout-btn">Выйти</a>
+    </div>
+</div>
+<!-- Основной контейнер -->
+<div class="container">
+    <!-- Боковая панель с друзьями -->
+    <div class="sidebar">
+        <h3>Друзья</h3>
+        <div class="add-friend-form">
+            <form method="post" action="{% url 'add_friend' %}">
+                {% csrf_token %}
+                <input type="text" name="friend_code" placeholder="Код друга" required>
+                <button type="submit" class="chat-btn">Добавить</button>
+            </form>
+        </div>
+
+        <div id="friends-list">
+            {% for friend_data in friends %}
+                <a href="{% url 'start_chat' friend_data.user.id %}" style="text-decoration: none; color: inherit;">
+                    <div class="friend-item" data-user-id="{{ friend_data.user.id }}">
+                        <span>{{ friend_data.user.username }}</span>
+                        <div class="online-indicator"></div>
+                    </div>
+                </a>
+            {% empty %}
+                <p style="color: #666; text-align: center; margin-top: 20px;">Пока нет друзей</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Основной контент -->
+    <div class="content">
+        {% block content %}
+            <!-- Сюда будет подставляться контент страниц -->
+        {% endblock %}
+    </div>
+</div>
+
+{% block scripts %}
+    <!-- Сюда подключаются JS скрипты -->
+{% endblock %}
+</body>
+</html>

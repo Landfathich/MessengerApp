@@ -34,6 +34,58 @@ def user_login(request):
     return render(request, 'chat/login.html', {'form': form})
 
 
+def get_user_friends(user):
+    """Вспомогательная функция для получения списка друзей пользователя"""
+    friendships_as_user1 = Friendship.objects.filter(user1=user)
+    friendships_as_user2 = Friendship.objects.filter(user2=user)
+
+    friends = []
+    for friendship in friendships_as_user1:
+        friends.append({
+            'user': friendship.user2,
+            'friendship': friendship
+        })
+    for friendship in friendships_as_user2:
+        friends.append({
+            'user': friendship.user1,
+            'friendship': friendship
+        })
+
+    return friends
+
+
+@login_required
+def chat_dashboard(request):
+    friends = get_user_friends(request.user)
+
+    return render(request, 'chat/dashboard.html', {
+        'user': request.user,
+        'friends': friends
+    })
+
+
+@login_required
+def conversation_chat(request, conversation_id):
+    conversation = get_object_or_404(Conversation, id=conversation_id)
+
+    if request.user not in conversation.participants.all():
+        return redirect('chat_dashboard')
+
+    messages = Message.objects.filter(conversation=conversation).order_by('timestamp')
+    friends = get_user_friends(request.user)  # ← используем вспомогательную функцию
+
+    other_participants = conversation.participants.exclude(id=request.user.id)
+    other_user = other_participants.first() if not conversation.is_group else None
+
+    return render(request, 'chat/conversation.html', {
+        'conversation': conversation,
+        'other_user': other_user,
+        'user': request.user,
+        'messages': messages,
+        'friends': friends
+    })
+
+
 @login_required
 def chat_dashboard(request):
     # Получаем всех друзей пользователя
@@ -60,27 +112,6 @@ def chat_dashboard(request):
 
 
 from django.shortcuts import get_object_or_404
-
-
-@login_required
-def conversation_chat(request, conversation_id):
-    conversation = get_object_or_404(Conversation, id=conversation_id)
-
-    if request.user not in conversation.participants.all():
-        return redirect('chat_dashboard')
-
-    # ЗАГРУЖАЕМ ИСТОРИЮ СООБЩЕНИЙ
-    messages = Message.objects.filter(conversation=conversation).order_by('timestamp')
-
-    other_participants = conversation.participants.exclude(id=request.user.id)
-    other_user = other_participants.first() if not conversation.is_group else None
-
-    return render(request, 'chat/conversation.html', {
-        'conversation': conversation,
-        'other_user': other_user,
-        'user': request.user,
-        'messages': messages  # ← передаем сообщения в шаблон
-    })
 
 
 @login_required
@@ -138,3 +169,11 @@ def add_friend(request):
             messages.error(request, "User with this friend code not found")
 
     return redirect('chat_dashboard')
+
+
+from django.contrib.auth import logout
+
+
+def user_logout(request):
+    logout(request)
+    return redirect('login')
