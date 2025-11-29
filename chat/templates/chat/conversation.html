@@ -8,18 +8,16 @@
 {% endblock %}
 
 {% block content %}
-    <div style="height: 100%; display: flex; flex-direction: column;">
-        <!-- Заголовок чата -->
+    <div class="chat-container">
+        <!-- Заголовок чата для мобильных -->
         <div class="chat-header">
-            <div class="chat-header-content">
-                <a href="{% url 'chat_dashboard' %}" class="chat-back-button">←</a>
-                <div class="chat-user-avatar">
-                    {{ other_user.username|first|upper }}
-                </div>
-                <div class="chat-user-info">
-                    <h2>{{ other_user.username }}</h2>
-                    <p class="chat-user-status">● онлайн</p>
-                </div>
+            <a href="{% url 'chat_dashboard' %}" class="back-button">←</a>
+            <div class="chat-user-avatar">
+                {{ other_user.username|first|upper }}
+            </div>
+            <div class="chat-user-info">
+                <h2>{{ other_user.username }}</h2>
+                <p class="chat-user-status">● онлайн</p>
             </div>
         </div>
 

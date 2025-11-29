@@ -6,38 +6,79 @@
     <title>{% block title %}MessengerApp{% endblock %}</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'chat/css/base.css' %}">
+    <link rel="stylesheet" href="{% static 'chat/css/mobile.css' %}">
     {% block extra_css %}{% endblock %}
 </head>
 <body>
 <!-- Хедер -->
 <div class="header">
-    <a href="{% url 'chat_dashboard' %}"
-       style="text-decoration: none; color: white; display: flex; align-items: center; gap: 8px;">
-        <span>🏠</span>
-        <h1 style="margin: 0;">MessengerApp</h1>
+    <button class="menu-toggle">☰</button>
+    <a href="{% url 'chat_dashboard' %}" style="text-decoration: none; color: white;">
+        <h1>MessengerApp</h1>
     </a>
     <div class="user-info">
-        <span>Привет, {{ user.username }}!</span>
+        <span class="desktop-username">Привет, {{ user.username }}!</span>
         <a href="{% url 'logout' %}" class="logout-btn">Выйти</a>
     </div>
 </div>
+
+<!-- Мобильное меню -->
+<div class="mobile-menu" id="mobileMenu">
+    <div class="mobile-header">
+        <button class="close-menu">×</button>
+        <div class="mobile-user-info">
+            <div class="mobile-user-avatar">
+                {{ user.username|first|upper }}
+            </div>
+            <div class="mobile-user-details">
+                <h3>{{ user.username }}</h3>
+                <p>Ваш код: {{ user.friend_code }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="mobile-add-friend">
+        <input type="text" id="mobileFriendCode" placeholder="Введите код друга">
+        <button onclick="addFriendMobile()">Добавить друга</button>
+    </div>
+
+    <div class="dialogs-list">
+        {% for friend_data in friends %}
+            <a href="{% url 'start_chat' friend_data.user.id %}" class="dialog-item" onclick="closeMobileMenu()">
+                <div class="dialog-avatar">
+                    {{ friend_data.user.username|first|upper }}
+                </div>
+                <div class="dialog-info">
+                    <div class="dialog-name">{{ friend_data.user.username }}</div>
+                    <div class="dialog-last-message">Нажмите чтобы начать чат</div>
+                </div>
+            </a>
+        {% empty %}
+            <div style="text-align: center; padding: 40px 20px; color: #666;">
+                <p>Пока нет диалогов</p>
+                <p style="font-size: 14px;">Добавьте друзей чтобы начать общение</p>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
 <!-- Основной контейнер -->
 <div class="container">
-    <!-- Боковая панель с друзьями -->
+    <!-- Боковая панель с друзьями (только для десктопа) -->
     <div class="sidebar">
         <h3>Друзья</h3>
         <div class="add-friend-form">
             <form method="post" action="{% url 'add_friend' %}">
                 {% csrf_token %}
                 <input type="text" name="friend_code" placeholder="Код друга" required>
-                <button type="submit" class="chat-btn" style="margin-top: 10px">Добавить</button>
+                <button type="submit" class="chat-btn">Добавить</button>
             </form>
         </div>
 
         <div id="friends-list">
             {% for friend_data in friends %}
                 <a href="{% url 'start_chat' friend_data.user.id %}" style="text-decoration: none; color: inherit;">
-                    <div class="friend-item" data-user-id="{{ friend_data.user.id }}">
+                    <div class="friend-item">
                         <span>{{ friend_data.user.username }}</span>
                         <div class="online-indicator"></div>
                     </div>
@@ -55,6 +96,65 @@
         {% endblock %}
     </div>
 </div>
+
+<!-- JavaScript для мобильного меню -->
+<script>
+    function toggleMobileMenu() {
+        const mobileMenu = document.getElementById('mobileMenu');
+        mobileMenu.classList.toggle('active');
+    }
+
+    function closeMobileMenu() {
+        const mobileMenu = document.getElementById('mobileMenu');
+        mobileMenu.classList.remove('active');
+    }
+
+    function addFriendMobile() {
+        const codeInput = document.getElementById('mobileFriendCode');
+        const code = codeInput.value.trim();
+
+        if (code) {
+            // Отправляем форму добавления друга
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '{% url "add_friend" %}';
+
+            const csrf = document.createElement('input');
+            csrf.name = 'csrfmiddlewaretoken';
+            csrf.value = '{{ csrf_token }}';
+            form.appendChild(csrf);
+
+            const codeField = document.createElement('input');
+            codeField.name = 'friend_code';
+            codeField.value = code;
+            form.appendChild(codeField);
+
+            document.body.appendChild(form);
+            form.submit();
+        }
+    }
+
+    // Обработчики событий
+    document.addEventListener('DOMContentLoaded', function () {
+        const menuToggle = document.querySelector('.menu-toggle');
+        const closeMenu = document.querySelector('.close-menu');
+
+        if (menuToggle) {
+            menuToggle.addEventListener('click', toggleMobileMenu);
+        }
+
+        if (closeMenu) {
+            closeMenu.addEventListener('click', closeMobileMenu);
+        }
+
+        // Закрываем меню при клике на ссылку
+        document.addEventListener('click', function (e) {
+            if (e.target.closest('.dialog-item') && window.innerWidth <= 768) {
+                closeMobileMenu();
+            }
+        });
+    });
+</script>
 
 {% block scripts %}
     <!-- Сюда подключаются JS скрипты -->

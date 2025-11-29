@@ -190,6 +190,7 @@
 
 .chat-user-info h2 {
     margin: 0;
+    color: black;
     font-size: 16px;
     font-weight: 600;
 }
@@ -199,3 +200,4 @@
     font-size: 12px;
     color: #4CAF50;
 }
+

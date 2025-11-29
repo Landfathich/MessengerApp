@@ -14,14 +14,14 @@ body {
 }
 
 .header {
-    background: rgba(0, 132, 255, 0.90);
+    background: rgba(0, 132, 255, 0.95);
     color: white;
     padding: 15px 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    backdrop-filter: blur(15px);
+    backdrop-filter: blur(10px);
 }
 
 .header h1 {
@@ -65,17 +65,17 @@ body {
     display: flex;
     flex: 1;
     overflow: hidden;
-    backdrop-filter: blur(8px);
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(5px);
 }
 
 .sidebar {
     width: 300px;
-    background: rgba(255, 255, 255, 0.9);
-    border-right: 1px solid rgba(221, 221, 221, 0.2);
+    background: rgba(255, 255, 255, 0.98);
+    border-right: 1px solid rgba(221, 221, 221, 0.5);
     padding: 20px;
     overflow-y: auto;
-    backdrop-filter: blur(12px);
-    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
 }
 
 .sidebar h3 {
@@ -88,67 +88,29 @@ body {
     flex: 1;
     padding: 20px;
     overflow-y: auto;
-    background: rgba(255, 255, 255, 0.6);
-    backdrop-filter: blur(12px);
-    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(10px);
 }
 
-.add-friend-form {
-    margin: 20px 0;
-    padding: 15px;
-    background: rgba(248, 249, 250, 0.6);
-    border-radius: 8px;
-    border: 1px solid rgba(233, 236, 239, 0.4);
-}
-
-.add-friend-form input {
-    padding: 8px 12px;
-    width: 150px;
-    margin-right: 10px;
-    border: 1px solid rgba(221, 221, 221, 0.5);
-    border-radius: 4px;
-    font-size: 14px;
-    background: rgba(255, 255, 255, 0.8);
-}
-
-.add-friend-form button {
-    padding: 8px 16px;
-    background: #0084ff;
-    color: white;
-    border: none;
-    border-radius: 4px;
+.friend-item {
+    padding: 12px;
+    border-bottom: 1px solid #eee;
     cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background 0.2s;
 }
 
-.add-friend-form button:hover {
-    background: #0073e6;
+.friend-item:hover {
+    background: #f0f8ff;
+    border-left: 3px solid #0084ff;
 }
 
 #friends-list a {
     text-decoration: none;
     color: inherit;
     display: block;
-}
-
-.friend-item {
-    padding: 12px;
-    border-bottom: 1px solid rgba(238, 238, 238, 0.4);
-    cursor: pointer;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    transition: background 0.2s;
-    background: rgba(255, 255, 255, 0.4);
-}
-
-.friend-item:hover {
-    background: rgba(240, 248, 255, 0.7);
-    border-left: 3px solid #0084ff;
-}
-
-.friend-item.active {
-    background: rgba(227, 242, 253, 0.7);
-    border-left: 3px solid #0084ff;
 }
 
 .online-indicator {
@@ -169,4 +131,36 @@ body {
     100% {
         opacity: 1;
     }
+}
+
+.friend-item.active {
+    background: #e3f2fd;
+    border-left: 3px solid #0084ff;
+}
+
+.add-friend-form {
+    margin: 20px 0;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+.add-friend-form input {
+    padding: 8px 12px;
+    width: 150px;
+    margin-right: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.add-friend-form button {
+    padding: 8px 16px;
+}
+
+/* Скрываем мобильные элементы на десктопе */
+.menu-toggle,
+.mobile-menu {
+    display: none;
 }
