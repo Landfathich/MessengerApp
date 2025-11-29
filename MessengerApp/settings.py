@@ -50,7 +50,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'MessangerApp.urls'
+ROOT_URLCONF = 'MessengerApp.urls'
 
 TEMPLATES = [
     {
@@ -68,8 +68,8 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'MessangerApp.wsgi.application'
-ASGI_APPLICATION = 'MessangerApp.asgi.application'
+WSGI_APPLICATION = 'MessengerApp.wsgi.application'
+ASGI_APPLICATION = 'MessengerApp.asgi.application'
 
 CHANNEL_LAYERS = {
     'default': {
