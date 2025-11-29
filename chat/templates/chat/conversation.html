@@ -1,89 +1,90 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Чат с {{ other_user.username }} - MessengerApp{% endblock %}
 
 {% block extra_css %}
-    <style>
-        /* Подсвечиваем активного друга в списке */
-        .friend-item[data-user-id="{{ other_user.id }}"] {
-            background: #e3f2fd;
-            border-left: 3px solid #0084ff;
-        }
-    </style>
+    <link rel="stylesheet" href="{% static 'chat/css/chat.css' %}">
 {% endblock %}
 
 {% block content %}
     <div style="height: 100%; display: flex; flex-direction: column;">
-        <!-- Кнопка назад -->
-        <div style="margin-bottom: 15px;">
-            <a href="{% url 'chat_dashboard' %}" style="color: #0084ff; text-decoration: none; font-size: 14px;">
-                ← Назад к списку друзей
-            </a>
+        <!-- Заголовок чата -->
+        <div class="chat-header">
+            <div class="chat-header-content">
+                <a href="{% url 'chat_dashboard' %}" class="chat-back-button">←</a>
+                <div class="chat-user-avatar">
+                    {{ other_user.username|first|upper }}
+                </div>
+                <div class="chat-user-info">
+                    <h2>{{ other_user.username }}</h2>
+                    <p class="chat-user-status">● онлайн</p>
+                </div>
+            </div>
         </div>
 
-        <h2>💬 Чат с {{ other_user.username }}</h2>
+        <!-- Сообщения -->
+        <div class="chat-messages" id="chatMessages">
+            {% for message in messages %}
+                <div class="message {% if message.sender == user %}own{% else %}other{% endif %}">
+                    {% if message.sender != user %}
+                        <div class="message-avatar">
+                            {{ message.sender.username|first|upper }}
+                        </div>
+                    {% endif %}
 
-        <div style="border: 1px solid #ddd; border-radius: 8px; flex: 1; display: flex; flex-direction: column; margin-top: 10px    ">
-            <!-- Сообщения -->
-            <div id="chatMessages" style="flex: 1; padding: 20px; overflow-y: auto;
-    background: rgba(255, 255, 255, 0.8);">
-                {% for message in messages %}
-                    <div style="margin-bottom: 10px;">
-                        {{ message.sender.username }}: {{ message.content }}
-                    </div>
-                {% empty %}
-                    <div style="text-align: center; color: #666; margin-top: 50px;">
-                        Пока нет сообщений. Начните общение!
-                    </div>
-                {% endfor %}
-            </div>
+                    <div class="message-content">
+                        {% if message.sender != user %}
+                            <div class="message-sender">{{ message.sender.username }}</div>
+                        {% endif %}
 
-            <!-- Поле ввода -->
-            <div style="padding: 15px; border-top: 1px solid #ddd; background: white;">
-                <div style="display: flex; gap: 10px;">
-                    <input type="text" id="messageInput" placeholder="Введите сообщение..."
-                           style="flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 20px;">
-                    <button onclick="sendMessage()"
-                            style="background: #0084ff; color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer;">
-                        Отправить
-                    </button>
+                        <div class="message-text">{{ message.content }}</div>
+
+                        <div class="message-time">
+                            {{ message.timestamp|date:"H:i" }}
+                        </div>
+                    </div>
+
+                    {% if message.sender == user %}
+                        <div class="message-avatar">
+                            {{ message.sender.username|first|upper }}
+                        </div>
+                    {% endif %}
                 </div>
+            {% empty %}
+                <div class="empty-chat">
+                    <div class="empty-chat-icon">💬</div>
+                    <p>Пока нет сообщений</p>
+                    <p style="font-size: 14px; opacity: 0.7;">Начните общение первым!</p>
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- Поле ввода -->
+        <div class="chat-input-container">
+            <div class="chat-input-wrapper">
+            <textarea
+                    id="messageInput"
+                    class="message-input"
+                    placeholder="Введите сообщение..."
+                    rows="1"
+            ></textarea>
+                <button onclick="sendMessage()" class="send-button">
+                    Отправить
+                </button>
             </div>
         </div>
     </div>
 {% endblock %}
 
 {% block scripts %}
+    <script src="{% static 'chat/js/chat.js' %}"></script>
     <script>
-        const conversationId = {{ conversation.id }};
-        const socket = new WebSocket('ws://' + window.location.host + '/ws/chat/' + conversationId + '/');
+        // Передаем данные в JS
+        document.body.setAttribute('data-user-initial', '{{ user.username|first|upper }}');
+        document.body.setAttribute('data-current-username', '{{ user.username }}');
 
-        socket.onmessage = function (event) {
-            const data = JSON.parse(event.data);
-            addMessageToChat(data.message);
-        };
-
-        function addMessageToChat(messageText) {
-            const chatDiv = document.getElementById('chatMessages');
-            chatDiv.innerHTML += `<div style="margin-bottom: 10px;">${messageText}</div>`;
-            chatDiv.scrollTop = chatDiv.scrollHeight;
-        }
-
-        function sendMessage() {
-            const messageInput = document.getElementById('messageInput');
-            const message = messageInput.value.trim();
-            if (message) {
-                socket.send(JSON.stringify({
-                    'message': message
-                }));
-                messageInput.value = '';
-            }
-        }
-
-        document.getElementById('messageInput').addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') {
-                sendMessage();
-            }
-        });
+        // Инициализируем чат
+        initializeChat({{ conversation.id }}, '{{ user.username }}');
     </script>
 {% endblock %}
