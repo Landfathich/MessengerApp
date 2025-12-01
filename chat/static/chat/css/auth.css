@@ -129,7 +129,6 @@ input:disabled {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: url('../images/bg.jpg') no-repeat center center fixed;
     background-size: cover;
 }
 
@@ -142,4 +141,44 @@ input:disabled {
     max-width: 400px;
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Мобильная версия для авторизации */
+@media (max-width: 768px) {
+    .auth-container {
+        padding: 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .auth-box {
+        padding: 30px 25px;
+        margin: 0;
+        width: 100%;
+        max-width: 100%;
+        border-radius: 16px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    .auth-title {
+        font-size: 22px;
+        margin-bottom: 25px;
+    }
+
+    .auth-form {
+        gap: 18px;
+    }
+
+    .form-group input {
+        padding: 14px;
+        font-size: 16px; /* Увеличиваем для мобильных */
+    }
+
+    .submit-btn {
+        padding: 14px;
+        font-size: 16px;
+    }
+
+    .auth-links {
+        font-size: 15px;
+    }
 }

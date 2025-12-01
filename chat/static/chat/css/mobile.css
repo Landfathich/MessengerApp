@@ -283,26 +283,3 @@
         font-size: 14px;
     }
 }
-
-@media (max-width: 480px) {
-    .header {
-        padding: 10px 12px;
-    }
-
-    .chat-header {
-        padding: 10px 12px;
-    }
-
-    .chat-messages {
-        padding: 12px;
-    }
-
-    .message {
-        max-width: 90%;
-    }
-
-    .message-content {
-        padding: 6px 10px;
-        font-size: 13px;
-    }
-}
